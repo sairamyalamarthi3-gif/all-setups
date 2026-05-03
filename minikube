@@ -1,8 +1,9 @@
-# 1. Update system and install dependencies
-yum update -y
-yum install -y docker conntrack git curl
+# 1. Install Docker and dependencies using conflict resolution
+# The --allowerasing flag is required to replace curl-minimal as seen in image_0af3c3.png
+dnf install -y docker conntrack git curl --allowerasing
 
-# 2. Start and enable Docker
+# 2. Start and enable the Docker service
+# This fixes the "Unit docker.service not found" error from image_0af3c3.png
 systemctl start docker
 systemctl enable docker
 
@@ -10,14 +11,17 @@ systemctl enable docker
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 install minikube-linux-amd64 /usr/local/bin/minikube
 
-# 4. Download and install kubectl (if not already present)
+# 4. Download and install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# 5. Start Minikube using the Docker driver
-# Note: We use --force because you are logged in as root (per image_188f09.png)
+# 5. Clean up any failed previous attempts
+minikube delete
+
+# 6. Start Minikube with the Docker driver
+# We use --force because you are operating as the root user
 minikube start --driver=docker --force
 
-# 6. Verify the installation
+# 7. Verify the cluster is running
 minikube status
 kubectl get nodes
