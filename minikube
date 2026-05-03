@@ -1,0 +1,23 @@
+# 1. Update system and install dependencies
+yum update -y
+yum install -y docker conntrack git curl
+
+# 2. Start and enable Docker
+systemctl start docker
+systemctl enable docker
+
+# 3. Download and install Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+install minikube-linux-amd64 /usr/local/bin/minikube
+
+# 4. Download and install kubectl (if not already present)
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# 5. Start Minikube using the Docker driver
+# Note: We use --force because you are logged in as root (per image_188f09.png)
+minikube start --driver=docker --force
+
+# 6. Verify the installation
+minikube status
+kubectl get nodes
